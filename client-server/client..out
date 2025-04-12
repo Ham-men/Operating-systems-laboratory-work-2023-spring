@@ -1,0 +1,72 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
+#define N 3
+#define K 4
+#define PORT 8888
+
+void print_data(int data[][K]) {	//вывод массива
+    printf("Data:\n");
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < K; j++) {
+            printf("%d ", data[i][j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
+int main(int argc, char const *argv[]) {
+    struct sockaddr_in server_addr;
+    int sock = 0,
+valread;
+    char buffer[1024] = {0};
+    int data[N][K] = {{1, 2, 3, 3},	
+                      {2, 7, 3, 2},
+                      {5, 5, 5, 2}};
+    // Create socket
+printf("\nCreate socket");
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {	
+
+        printf("\n Socket creation error \n");
+        return -1;
+    }
+
+    memset(&serv_addr, '0', sizeof(serv_addr));
+
+    serv_addr.sin_family = AF_INET; // AF_INET - ipv4
+    serv_addr.sin_port = htons(PORT);	//установка порта
+
+    // Convert IPv4 and IPv6 addresses from text to binary form
+    if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
+        printf("\n Invalid address/ Address not supported \n");
+        return -1;
+    }
+
+    // Connect to server
+printf("\nConnect to server");
+    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
+        printf("\n Connection Failed \n");
+       
+return -1;
+    }
+    
+    printf("\n input data");
+    print_data(data);
+    
+    // Send data to server
+    send(sock, data, sizeof(data), 0);
+
+    // Receive data from server
+    valread = read(sock, buffer, 1024);
+    memcpy(data, buffer, sizeof(data));
+   
+    printf("\n output data");
+    print_data(data);
+
+    return 0;
+}
